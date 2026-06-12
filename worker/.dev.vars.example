@@ -1,0 +1,5 @@
+# Скопируй в worker/.dev.vars (он в .gitignore) для локальной разработки: npm run dev
+ANTHROPIC_API_KEY=sk-ant-...
+BOT_TOKEN=12345:abcde
+# пропускать проверку Telegram initData (НИКОГДА не ставить в проде)
+DEV_MODE=1

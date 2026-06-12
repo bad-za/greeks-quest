@@ -5,9 +5,16 @@ import { Quiz } from './Quiz'
 import { Mission } from './Mission'
 import { LEVELS } from '../content/levels'
 import { haptic } from '../lib/telegram'
+import { GlossaryModal } from './Glossary'
+import { AskTutor } from './AskTutor'
+import { ASK_API } from '../lib/ask'
 
 const STEP_XP = { theory: 10, widget: 15, quiz: 30, mission: 0 } // миссии дают XP по вердикту
 const MISSION_XP: Record<Verdict, number> = { best: 120, ok: 70, bad: 30 }
+
+function stepTitle(step: Level['steps'][number]): string {
+  return step.kind === 'mission' ? step.mission.title : step.title
+}
 
 export function LevelPlayer(props: { level: Level; onExit: () => void }) {
   const { state, addXp, addPnl, setStepProgress, completeLevel, unlock } = useStore()
@@ -16,6 +23,8 @@ export function LevelPlayer(props: { level: Level; onExit: () => void }) {
   const [idx, setIdx] = useState(Math.min(saved, level.steps.length - 1))
   const [stepReady, setStepReady] = useState(idx < saved) // квиз/миссия текущего шага завершены?
   const [finished, setFinished] = useState(false)
+  const [glossary, setGlossary] = useState(false)
+  const [tutor, setTutor] = useState(false)
 
   const step = level.steps[idx]
   const isDone = idx < saved
@@ -107,7 +116,19 @@ export function LevelPlayer(props: { level: Level; onExit: () => void }) {
           </div>
         </div>
         <span className="player-step">{idx + 1}/{level.steps.length}</span>
+        <button className="btn ghost gloss-btn" title="Словарик терминов" onClick={() => setGlossary(true)}>📖</button>
+        {ASK_API && (
+          <button className="btn ghost gloss-btn" title="Спросить тьютора" onClick={() => setTutor(true)}>💬</button>
+        )}
       </header>
+
+      {glossary && <GlossaryModal onClose={() => setGlossary(false)} />}
+      {tutor && (
+        <AskTutor
+          context={`уровень «${level.title}», шаг ${idx + 1} «${stepTitle(step)}»`}
+          onClose={() => setTutor(false)}
+        />
+      )}
 
       <div className="step-card">
         {step.kind === 'theory' && (

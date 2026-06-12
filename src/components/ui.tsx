@@ -1,4 +1,7 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
+import { findTerm } from '../content/glossary'
+import { TermPopover } from './Glossary'
+import { haptic } from '../lib/telegram'
 
 export function Slider(props: {
   label: string
@@ -9,15 +12,35 @@ export function Slider(props: {
   display?: string
   onChange: (v: number) => void
   accent?: string
+  /** пояснение «что это» — показывается по тапу на ? */
+  hint?: string
 }) {
+  const [hintOpen, setHintOpen] = useState(false)
   return (
     <label className="slider">
       <span className="slider-head">
-        <span>{props.label}</span>
+        <span>
+          {props.label}
+          {props.hint && (
+            <button
+              type="button"
+              className="hint-btn"
+              aria-label="Что это?"
+              onClick={e => {
+                e.preventDefault()
+                e.stopPropagation()
+                setHintOpen(h => !h)
+              }}
+            >
+              ?
+            </button>
+          )}
+        </span>
         <b style={props.accent ? { color: props.accent } : undefined}>
           {props.display ?? props.value}
         </b>
       </span>
+      {props.hint && hintOpen && <span className="slider-hint">{props.hint}</span>}
       <input
         type="range"
         min={props.min}
@@ -70,6 +93,37 @@ export function Callout(props: { type?: 'info' | 'warn' | 'tip'; children: React
   )
 }
 
-export function Term(props: { children: ReactNode }) {
-  return <b className="term">{props.children}</b>
+function textOf(node: ReactNode): string {
+  if (node == null || typeof node === 'boolean') return ''
+  if (typeof node === 'string' || typeof node === 'number') return String(node)
+  if (Array.isArray(node)) return node.map(textOf).join('')
+  if (typeof node === 'object' && 'props' in node) {
+    return textOf((node.props as { children?: ReactNode }).children)
+  }
+  return ''
+}
+
+/**
+ * Термин в тексте. Если для него есть статья в словарике — тапается
+ * и открывает определение; `t` задаёт ключ статьи явно, когда текст не совпадает.
+ */
+export function Term(props: { children: ReactNode; t?: string }) {
+  const [open, setOpen] = useState(false)
+  const entry = findTerm(props.t ?? textOf(props.children))
+  if (!entry) return <b className="term">{props.children}</b>
+  return (
+    <>
+      <button
+        type="button"
+        className="term tappable"
+        onClick={() => {
+          haptic('light')
+          setOpen(true)
+        }}
+      >
+        {props.children}
+      </button>
+      {open && <TermPopover entry={entry} onClose={() => setOpen(false)} />}
+    </>
+  )
 }

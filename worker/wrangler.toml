@@ -1,0 +1,11 @@
+name = "greeks-quest-tutor"
+main = "src/index.ts"
+compatibility_date = "2026-06-01"
+
+# Секреты (задаются через `npx wrangler secret put <ИМЯ>`, в репозиторий не попадают):
+#   ANTHROPIC_API_KEY — ключ Anthropic API
+#   BOT_TOKEN         — токен Telegram-бота (для проверки подписи initData)
+
+[vars]
+# Telegram user ID, которым разрешён доступ (через запятую) — тот же список, что в src/App.tsx
+ALLOWED_USERS = "217306978"

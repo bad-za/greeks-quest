@@ -3,3 +3,6 @@ dist/
 *.log
 .DS_Store
 bot_token.env
+worker/node_modules/
+worker/.dev.vars
+worker/.wrangler/
