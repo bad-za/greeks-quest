@@ -20,6 +20,7 @@ interface TgCloudStorage {
 
 interface TgWebApp {
   initData: string
+  initDataUnsafe?: { user?: { id?: number } }
   platform: string
   ready(): void
   expand(): void
@@ -42,6 +43,11 @@ export const tg: TgWebApp | undefined = window.Telegram?.WebApp
 
 /** Запущены ли мы реально внутри Telegram (скрипт SDK определяет объект даже в обычном браузере) */
 export const isTMA = !!tg && (tg.initData !== '' || (tg.platform !== '' && tg.platform !== 'unknown'))
+
+/** ID пользователя Telegram, открывшего мини-апп (null вне Telegram) */
+export function tgUserId(): number | null {
+  return tg?.initDataUnsafe?.user?.id ?? null
+}
 
 export function initTelegram(): void {
   if (!tg || !isTMA) return
