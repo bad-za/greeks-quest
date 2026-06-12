@@ -5,7 +5,7 @@ import { tg } from './telegram'
  * URL воркера-тьютора. Пустая строка = фича выключена (кнопка не показывается).
  * Заполняется после `npx wrangler deploy` (URL вида https://greeks-quest-tutor.<account>.workers.dev).
  */
-const PROD_TUTOR_URL = ''
+const PROD_TUTOR_URL = 'https://greeks-quest-tutor.bigbadnoob.workers.dev'
 
 export const ASK_API = import.meta.env.DEV ? 'http://localhost:8787' : PROD_TUTOR_URL
 
