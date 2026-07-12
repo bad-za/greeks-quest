@@ -34,8 +34,8 @@ export function XYChart(props: {
 
   const allPts = props.series.flatMap(s => s.points)
   if (allPts.length === 0) return null
-  let xMin = Math.min(...allPts.map(p => p[0]))
-  let xMax = Math.max(...allPts.map(p => p[0]))
+  const xMin = Math.min(...allPts.map(p => p[0]))
+  const xMax = Math.max(...allPts.map(p => p[0]))
   let yMin = Math.min(...allPts.map(p => p[1]))
   let yMax = Math.max(...allPts.map(p => p[1]))
   if (props.yZeroLine) {

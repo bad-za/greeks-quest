@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { usd } from '../../lib/format'
 import { XYChart } from '../XYChart'
 import { Slider } from '../ui'
 

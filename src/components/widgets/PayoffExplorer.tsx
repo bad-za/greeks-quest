@@ -47,7 +47,7 @@ export function PayoffExplorer(props: {
   const p = POS[pos]
   const premium = useMemo(
     () => bs(p.type, S0, strike, iv / 100, daysToYears(dte)).price,
-    [pos, strike, iv, dte],
+    [p.type, strike, iv, dte],
   )
   const leg: Leg = { type: p.type, side: p.side, strike, qty: 1, premium, dte }
   const daysLeft = Math.max(dte - (props.showTime ? daysPassed : 0), 0)

@@ -16,9 +16,13 @@ export function Mission(props: {
   const [phase, setPhase] = useState<'brief' | 'run' | 'result'>('brief')
   const [choiceIdx, setChoiceIdx] = useState<number | null>(null)
   const [day, setDay] = useState(0)
-  const [reported, setReported] = useState(props.alreadyDone)
   const [isReplay, setIsReplay] = useState(props.alreadyDone)
   const timer = useRef<number | null>(null)
+  // ref, а не state: эффект результата должен сработать ровно один раз на показ
+  // результата и не перезапускаться от ре-рендеров родителя (двойная хаптика/XP)
+  const reported = useRef(props.alreadyDone)
+  const onComplete = useRef(props.onComplete)
+  onComplete.current = props.onComplete
 
   const path = useMemo(() => {
     if ('fixed' in m.path) return m.path.fixed
@@ -55,15 +59,14 @@ export function Mission(props: {
   }, [phase, m.days])
 
   useEffect(() => {
-    if (phase === 'result' && choice) {
-      const pnl = pnlAt(m, choice, legs, path[m.days], m.days)
-      haptic(choice.verdict === 'bad' ? 'error' : pnl >= 0 ? 'success' : 'warning')
-      if (!reported) {
-        setReported(true)
-        props.onComplete(choice.verdict, pnl)
-      }
+    if (phase !== 'result' || !choice) return
+    const pnl = pnlAt(m, choice, legs, path[m.days], m.days)
+    haptic(choice.verdict === 'bad' ? 'error' : pnl >= 0 ? 'success' : 'warning')
+    if (!reported.current) {
+      reported.current = true
+      onComplete.current(choice.verdict, pnl)
     }
-  }, [phase])
+  }, [phase, choice, legs, m, path])
 
   const premiumPaid = legs.reduce((a, l) => a + l.side * l.qty * l.premium, 0)
   const spotCost = choice?.spotQty ? choice.spotQty * m.spot : 0
