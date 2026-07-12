@@ -9,7 +9,9 @@ export function TermPopover(props: { entry: GlossEntry; onClose: () => void }) {
       <div className="modal term-modal" onClick={e => e.stopPropagation()}>
         <h3>📖 {props.entry.title}</h3>
         <p className="term-body">{props.entry.body}</p>
-        <button className="btn primary" onClick={props.onClose}>Понятно</button>
+        <button className="btn primary" onClick={props.onClose}>
+          Понятно
+        </button>
       </div>
     </div>
   )
@@ -61,7 +63,9 @@ export function GlossaryModal(props: { onClose: () => void }) {
             </p>
           )}
         </div>
-        <button className="btn" onClick={props.onClose}>Закрыть</button>
+        <button className="btn" onClick={props.onClose}>
+          Закрыть
+        </button>
       </div>
     </div>
   )

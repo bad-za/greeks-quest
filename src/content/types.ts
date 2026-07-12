@@ -43,7 +43,9 @@ export interface Mission {
   dte: number
   /** сколько дней проигрывается сценарий */
   days: number
-  path: { seed: number; vol: number; drift: number; shockDay?: number; shockPct?: number } | { fixed: number[] }
+  path:
+    | { seed: number; vol: number; drift: number; shockDay?: number; shockPct?: number }
+    | { fixed: number[] }
   choices: MissionChoice[]
   /** общий разбор после результата */
   debrief: ReactNode

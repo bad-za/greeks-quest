@@ -22,7 +22,15 @@ export function Mission(props: {
 
   const path = useMemo(() => {
     if ('fixed' in m.path) return m.path.fixed
-    return gbmPath({ seed: m.path.seed, spot: m.spot, days: m.days, vol: m.path.vol, drift: m.path.drift, shockDay: m.path.shockDay, shockPct: m.path.shockPct })
+    return gbmPath({
+      seed: m.path.seed,
+      spot: m.spot,
+      days: m.days,
+      vol: m.path.vol,
+      drift: m.path.drift,
+      shockDay: m.path.shockDay,
+      shockPct: m.path.shockPct,
+    })
   }, [m])
 
   const choice = choiceIdx !== null ? m.choices[choiceIdx] : null
@@ -62,7 +70,10 @@ export function Mission(props: {
   const curPnl = choice ? pnlAt(m, choice, legs, path[Math.min(day, m.days)], day) : 0
 
   const pathPts: [number, number][] = path.slice(0, day + 1).map((p, i) => [i, p])
-  const fullDomain: [number, number][] = [[0, Math.min(...path) * 0.98], [m.days, Math.max(...path) * 1.02]]
+  const fullDomain: [number, number][] = [
+    [0, Math.min(...path) * 0.98],
+    [m.days, Math.max(...path) * 1.02],
+  ]
 
   const verdictUi: Record<Verdict, { cls: string; label: string }> = {
     best: { cls: 'verdict-best', label: '🎯 Лучшее решение' },
@@ -91,7 +102,9 @@ export function Mission(props: {
           <div className="mission-choices">
             {m.choices.map((c, i) => {
               const pl = priceLegs(m, c)
-              const cost = pl.reduce((a, l) => a + l.side * l.qty * l.premium, 0) + (c.spotQty ? c.spotQty * m.spot : 0)
+              const cost =
+                pl.reduce((a, l) => a + l.side * l.qty * l.premium, 0) +
+                (c.spotQty ? c.spotQty * m.spot : 0)
               return (
                 <button
                   key={i}
@@ -105,7 +118,11 @@ export function Mission(props: {
                   <b>{c.label}</b>
                   <span>{c.desc}</span>
                   <span className="choice-cost">
-                    {cost > 0 ? `Стоимость: ${usd(cost)}` : cost < 0 ? `Получаешь премию: ${usd(-cost)}` : 'Бесплатно'}
+                    {cost > 0
+                      ? `Стоимость: ${usd(cost)}`
+                      : cost < 0
+                        ? `Получаешь премию: ${usd(-cost)}`
+                        : 'Бесплатно'}
                   </span>
                 </button>
               )
@@ -118,14 +135,22 @@ export function Mission(props: {
         <>
           <div className="mission-run-head">
             <b>{choice.label}</b>
-            <span>День {Math.min(day, m.days)} / {m.days}</span>
+            <span>
+              День {Math.min(day, m.days)} / {m.days}
+            </span>
           </div>
           <XYChart
             series={[
               { points: fullDomain, color: 'transparent', width: 0 },
               { points: pathPts, color: '#3b82f6', width: 2.2, label: 'BTC' },
             ]}
-            vMarkers={'fixed' in m.path || !m.path.shockDay ? [] : day >= m.path.shockDay ? [{ x: m.path.shockDay, color: '#ef4444', label: 'шок' }] : []}
+            vMarkers={
+              'fixed' in m.path || !m.path.shockDay
+                ? []
+                : day >= m.path.shockDay
+                  ? [{ x: m.path.shockDay, color: '#ef4444', label: 'шок' }]
+                  : []
+            }
             xFmt={x => `${Math.round(x)}д`}
             yFmt={y => `${Math.round(y / 1000)}k`}
             height={260}
@@ -136,7 +161,11 @@ export function Mission(props: {
               label={premiumPaid + spotCost >= 0 ? 'Вложено' : 'Получено премии'}
               value={usd(Math.abs(premiumPaid + spotCost))}
             />
-            <Stat label="P&L позиции" value={usdSigned(curPnl)} tone={curPnl >= 0 ? 'pos' : 'neg'} />
+            <Stat
+              label="P&L позиции"
+              value={usdSigned(curPnl)}
+              tone={curPnl >= 0 ? 'pos' : 'neg'}
+            />
           </div>
         </>
       )}

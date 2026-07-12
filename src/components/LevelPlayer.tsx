@@ -94,7 +94,9 @@ export function LevelPlayer(props: { level: Level; onExit: () => void }) {
         <div className="level-done-emoji">{level.emoji}</div>
         <h2>Уровень пройден!</h2>
         <p>{level.title}</p>
-        <button className="btn primary" onClick={props.onExit}>На карту курса →</button>
+        <button className="btn primary" onClick={props.onExit}>
+          На карту курса →
+        </button>
       </div>
     )
   }
@@ -102,9 +104,13 @@ export function LevelPlayer(props: { level: Level; onExit: () => void }) {
   return (
     <div className="player">
       <header className="player-head">
-        <button className="btn ghost" onClick={props.onExit}>← Карта</button>
+        <button className="btn ghost" onClick={props.onExit}>
+          ← Карта
+        </button>
         <div className="player-title">
-          <span>{level.emoji} {level.title}</span>
+          <span>
+            {level.emoji} {level.title}
+          </span>
           <div className="step-dots">
             {level.steps.map((s, i) => (
               <span
@@ -115,10 +121,24 @@ export function LevelPlayer(props: { level: Level; onExit: () => void }) {
             ))}
           </div>
         </div>
-        <span className="player-step">{idx + 1}/{level.steps.length}</span>
-        <button className="btn ghost gloss-btn" title="Словарик терминов" onClick={() => setGlossary(true)}>📖</button>
+        <span className="player-step">
+          {idx + 1}/{level.steps.length}
+        </span>
+        <button
+          className="btn ghost gloss-btn"
+          title="Словарик терминов"
+          onClick={() => setGlossary(true)}
+        >
+          📖
+        </button>
         {ASK_API && (
-          <button className="btn ghost gloss-btn" title="Спросить тьютора" onClick={() => setTutor(true)}>💬</button>
+          <button
+            className="btn ghost gloss-btn"
+            title="Спросить тьютора"
+            onClick={() => setTutor(true)}
+          >
+            💬
+          </button>
         )}
       </header>
 
@@ -148,22 +168,43 @@ export function LevelPlayer(props: { level: Level; onExit: () => void }) {
         {step.kind === 'quiz' && (
           <>
             <h3>🧠 {step.title}</h3>
-            <Quiz key={`${level.id}-${idx}`} questions={step.questions} alreadyDone={isDone} onComplete={onQuizComplete} />
+            <Quiz
+              key={`${level.id}-${idx}`}
+              questions={step.questions}
+              alreadyDone={isDone}
+              onComplete={onQuizComplete}
+            />
           </>
         )}
         {step.kind === 'mission' && (
-          <Mission key={`${level.id}-${idx}`} mission={step.mission} alreadyDone={isDone} onComplete={onMissionComplete} />
+          <Mission
+            key={`${level.id}-${idx}`}
+            mission={step.mission}
+            alreadyDone={isDone}
+            onComplete={onMissionComplete}
+          />
         )}
       </div>
 
       <footer className="player-foot">
-        <button className="btn ghost" disabled={idx === 0} onClick={() => { setIdx(i => i - 1); setStepReady(true) }}>
+        <button
+          className="btn ghost"
+          disabled={idx === 0}
+          onClick={() => {
+            setIdx(i => i - 1)
+            setStepReady(true)
+          }}
+        >
           ← Назад
         </button>
         <button className="btn primary" disabled={needsAction} onClick={completeStep}>
           {needsAction
-            ? step.kind === 'quiz' ? 'Сначала ответь на вопросы' : 'Сначала прими решение'
-            : isLast ? 'Завершить уровень ✓' : 'Дальше →'}
+            ? step.kind === 'quiz'
+              ? 'Сначала ответь на вопросы'
+              : 'Сначала прими решение'
+            : isLast
+              ? 'Завершить уровень ✓'
+              : 'Дальше →'}
         </button>
       </footer>
     </div>

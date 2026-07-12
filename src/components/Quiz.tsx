@@ -49,7 +49,9 @@ export function Quiz(props: {
                     key={oi}
                     className={cls}
                     disabled={isChecked && correct}
-                    onClick={() => !isChecked && setSelected(s => s.map((v, i) => (i === qi ? oi : v)))}
+                    onClick={() =>
+                      !isChecked && setSelected(s => s.map((v, i) => (i === qi ? oi : v)))
+                    }
                   >
                     {o}
                   </button>
@@ -57,13 +59,17 @@ export function Quiz(props: {
               })}
             </div>
             {!isChecked && sel !== null && (
-              <button className="btn" onClick={() => check(qi)}>Проверить</button>
+              <button className="btn" onClick={() => check(qi)}>
+                Проверить
+              </button>
             )}
             {isChecked && correct && <p className="quiz-explain ok">✅ {q.explain}</p>}
             {isChecked && !correct && (
               <div>
                 <p className="quiz-explain bad">❌ Не совсем. Подумай ещё раз.</p>
-                <button className="btn" onClick={() => retry(qi)}>Попробовать снова</button>
+                <button className="btn" onClick={() => retry(qi)}>
+                  Попробовать снова
+                </button>
               </div>
             )}
           </div>

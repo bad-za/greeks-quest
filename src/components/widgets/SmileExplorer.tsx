@@ -28,14 +28,35 @@ export function SmileExplorer() {
         height={280}
       />
       <div className="sliders">
-        <Slider label="ATM IV" value={atmIv} min={30} max={120} display={`${atmIv}%`} onChange={setAtmIv} />
-        <Slider label="Кривизна улыбки" value={smile} min={0} max={100} display={String(smile)} onChange={setSmile} />
-        <Slider label="Скью (перекос)" value={skew} min={-40} max={40} display={String(skew)} onChange={setSkew} />
+        <Slider
+          label="ATM IV"
+          value={atmIv}
+          min={30}
+          max={120}
+          display={`${atmIv}%`}
+          onChange={setAtmIv}
+        />
+        <Slider
+          label="Кривизна улыбки"
+          value={smile}
+          min={0}
+          max={100}
+          display={String(smile)}
+          onChange={setSmile}
+        />
+        <Slider
+          label="Скью (перекос)"
+          value={skew}
+          min={-40}
+          max={40}
+          display={String(skew)}
+          onChange={setSkew}
+        />
       </div>
       <p className="hint">
-        Скью &lt; 0 — путы дороже коллов (страх обвала, типично для акций и для крипты в медвежьи периоды).
-        Скью &gt; 0 — коллы дороже (жадность, FOMO на памп — частая картина в крипте перед халвингом или ETF).
-        В крипте скью «гуляет» в обе стороны, в отличие от рынка акций.
+        Скью &lt; 0 — путы дороже коллов (страх обвала, типично для акций и для крипты в медвежьи
+        периоды). Скью &gt; 0 — коллы дороже (жадность, FOMO на памп — частая картина в крипте перед
+        халвингом или ETF). В крипте скью «гуляет» в обе стороны, в отличие от рынка акций.
       </p>
     </div>
   )

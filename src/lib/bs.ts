@@ -14,7 +14,7 @@ export function cdf(x: number): number {
   if (x > 8) return 1
   const k = 1 / (1 + 0.2316419 * Math.abs(x))
   const poly =
-    k * (0.319381530 + k * (-0.356563782 + k * (1.781477937 + k * (-1.821255978 + k * 1.330274429))))
+    k * (0.31938153 + k * (-0.356563782 + k * (1.781477937 + k * (-1.821255978 + k * 1.330274429))))
   const approx = 1 - pdf(Math.abs(x)) * poly
   return x >= 0 ? approx : 1 - approx
 }
@@ -38,15 +38,13 @@ export interface Greeks {
 export function bs(type: OptType, S: number, K: number, iv: number, tYears: number): Greeks {
   if (tYears <= 0 || iv <= 0) {
     const intrinsic = type === 'call' ? Math.max(S - K, 0) : Math.max(K - S, 0)
-    const delta =
-      type === 'call' ? (S > K ? 1 : 0) : S < K ? -1 : 0
+    const delta = type === 'call' ? (S > K ? 1 : 0) : S < K ? -1 : 0
     return { price: intrinsic, delta, gamma: 0, thetaDay: 0, vega1pct: 0 }
   }
   const sqrtT = Math.sqrt(tYears)
   const d1 = (Math.log(S / K) + 0.5 * iv * iv * tYears) / (iv * sqrtT)
   const d2 = d1 - iv * sqrtT
-  const price =
-    type === 'call' ? S * cdf(d1) - K * cdf(d2) : K * cdf(-d2) - S * cdf(-d1)
+  const price = type === 'call' ? S * cdf(d1) - K * cdf(d2) : K * cdf(-d2) - S * cdf(-d1)
   const delta = type === 'call' ? cdf(d1) : cdf(d1) - 1
   const gamma = pdf(d1) / (S * iv * sqrtT)
   const thetaYear = -(S * pdf(d1) * iv) / (2 * sqrtT)
@@ -90,9 +88,7 @@ export function legsPnl(legs: Leg[], S: number, iv: number, daysLeft: number): n
   let pnl = 0
   for (const leg of legs) {
     const value =
-      daysLeft <= 0
-        ? payoffAtExpiry(leg.type, S, leg.strike)
-        : legValue(leg, S, iv, daysLeft)
+      daysLeft <= 0 ? payoffAtExpiry(leg.type, S, leg.strike) : legValue(leg, S, iv, daysLeft)
     pnl += leg.side * leg.qty * (value - leg.premium)
   }
   return pnl

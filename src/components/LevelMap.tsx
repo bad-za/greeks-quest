@@ -33,7 +33,9 @@ export function LevelMap(props: { onOpen: (levelId: string) => void }) {
           </div>
           <div className="hud-stat">
             <span>Ранг</span>
-            <b>{rank.emoji} {rank.name}</b>
+            <b>
+              {rank.emoji} {rank.name}
+            </b>
           </div>
           <button className="btn ghost" onClick={() => setShowAch(true)}>
             🏅 {unlockedCount}/{ACHIEVEMENTS.length}
@@ -42,7 +44,10 @@ export function LevelMap(props: { onOpen: (levelId: string) => void }) {
       </header>
 
       {state.busts > 0 && (
-        <p className="busts">💀 Ликвидаций: {state.busts}. Депозит каждый раз восстанавливался до $10,000 — в реальной жизни такой кнопки нет.</p>
+        <p className="busts">
+          💀 Ликвидаций: {state.busts}. Депозит каждый раз восстанавливался до $10,000 — в реальной
+          жизни такой кнопки нет.
+        </p>
       )}
 
       {ACTS.map(act => {
@@ -69,7 +74,13 @@ export function LevelMap(props: { onOpen: (levelId: string) => void }) {
                     <b>{level.title}</b>
                     <span className="level-sub">{level.subtitle}</span>
                     <span className="level-progress">
-                      {done ? '✓ пройден' : locked ? 'заблокирован' : progress > 0 ? `шаг ${Math.min(progress + 1, level.steps.length)} из ${level.steps.length}` : `${level.steps.length} шагов`}
+                      {done
+                        ? '✓ пройден'
+                        : locked
+                          ? 'заблокирован'
+                          : progress > 0
+                            ? `шаг ${Math.min(progress + 1, level.steps.length)} из ${level.steps.length}`
+                            : `${level.steps.length} шагов`}
                     </span>
                     {!done && !locked && progress > 0 && (
                       <span className="level-bar">
@@ -119,7 +130,9 @@ export function LevelMap(props: { onOpen: (levelId: string) => void }) {
                 )
               })}
             </div>
-            <button className="btn" onClick={() => setShowAch(false)}>Закрыть</button>
+            <button className="btn" onClick={() => setShowAch(false)}>
+              Закрыть
+            </button>
           </div>
         </div>
       )}

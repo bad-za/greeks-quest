@@ -51,7 +51,9 @@ export function XYChart(props: {
   const sy = (y: number) => H - PAD.b - ((y - yMin) / (yMax - yMin)) * (H - PAD.t - PAD.b)
 
   const linePath = (pts: [number, number][]) =>
-    pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${sx(p[0]).toFixed(1)},${sy(p[1]).toFixed(1)}`).join('')
+    pts
+      .map((p, i) => `${i === 0 ? 'M' : 'L'}${sx(p[0]).toFixed(1)},${sy(p[1]).toFixed(1)}`)
+      .join('')
 
   const areaPath = (pts: [number, number][]) =>
     linePath(pts) +
@@ -62,7 +64,10 @@ export function XYChart(props: {
   const xTicks = 5
   const yTicks = 5
   const xTickVals = Array.from({ length: xTicks }, (_, i) => xMin + (xSpan * i) / (xTicks - 1))
-  const yTickVals = Array.from({ length: yTicks }, (_, i) => yMin + ((yMax - yMin) * i) / (yTicks - 1))
+  const yTickVals = Array.from(
+    { length: yTicks },
+    (_, i) => yMin + ((yMax - yMin) * i) / (yTicks - 1),
+  )
 
   const zeroY = sy(0)
   const clipAboveId = `clip-above-${Math.round(zeroY)}`
@@ -100,8 +105,18 @@ export function XYChart(props: {
       {props.series.map((s, i) =>
         s.fillToZero ? (
           <g key={`fill${i}`}>
-            <path d={areaPath(s.points)} fill="#22c55e" opacity={0.16} clipPath={`url(#${clipAboveId})`} />
-            <path d={areaPath(s.points)} fill="#ef4444" opacity={0.16} clipPath={`url(#${clipBelowId})`} />
+            <path
+              d={areaPath(s.points)}
+              fill="#22c55e"
+              opacity={0.16}
+              clipPath={`url(#${clipAboveId})`}
+            />
+            <path
+              d={areaPath(s.points)}
+              fill="#ef4444"
+              opacity={0.16}
+              clipPath={`url(#${clipBelowId})`}
+            />
           </g>
         ) : null,
       )}
@@ -144,7 +159,15 @@ export function XYChart(props: {
             .filter(s => s.label)
             .map((s, i) => (
               <g key={`lg${i}`} transform={`translate(${PAD.l + 10 + i * 150}, ${PAD.t + 6})`}>
-                <line x1={0} x2={18} y1={0} y2={0} stroke={s.color} strokeWidth={2.5} strokeDasharray={s.dash} />
+                <line
+                  x1={0}
+                  x2={18}
+                  y1={0}
+                  y2={0}
+                  stroke={s.color}
+                  strokeWidth={2.5}
+                  strokeDasharray={s.dash}
+                />
                 <text x={24} y={4} className="legend-label">
                   {s.label}
                 </text>

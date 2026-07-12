@@ -35,10 +35,41 @@ export function IVExplorer() {
         height={280}
       />
       <div className="sliders">
-        <Slider label="Страйк" value={strike} min={80_000} max={130_000} step={1000} display={usd(strike)} onChange={setStrike} />
-        <Slider label="Дней до экспирации" value={dte} min={1} max={60} display={`${dte}д`} onChange={setDte} />
-        <Slider label="IV до события" value={ivBefore} min={20} max={150} display={`${ivBefore}%`} accent="#ef4444" onChange={setIvBefore} />
-        <Slider label="IV после события" value={ivAfter} min={20} max={150} display={`${ivAfter}%`} accent="#22c55e" onChange={setIvAfter} />
+        <Slider
+          label="Страйк"
+          value={strike}
+          min={80_000}
+          max={130_000}
+          step={1000}
+          display={usd(strike)}
+          onChange={setStrike}
+        />
+        <Slider
+          label="Дней до экспирации"
+          value={dte}
+          min={1}
+          max={60}
+          display={`${dte}д`}
+          onChange={setDte}
+        />
+        <Slider
+          label="IV до события"
+          value={ivBefore}
+          min={20}
+          max={150}
+          display={`${ivBefore}%`}
+          accent="#ef4444"
+          onChange={setIvBefore}
+        />
+        <Slider
+          label="IV после события"
+          value={ivAfter}
+          min={20}
+          max={150}
+          display={`${ivAfter}%`}
+          accent="#22c55e"
+          onChange={setIvAfter}
+        />
       </div>
       <div className="stats">
         <Stat label="Премия до" value={usd(before)} />

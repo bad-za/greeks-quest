@@ -50,7 +50,9 @@ function json(body: unknown, status: number, origin: string | null): Response {
 }
 
 async function hmacSha256(key: Uint8Array | ArrayBuffer, data: string): Promise<ArrayBuffer> {
-  const k = await crypto.subtle.importKey('raw', key, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+  const k = await crypto.subtle.importKey('raw', key, { name: 'HMAC', hash: 'SHA-256' }, false, [
+    'sign',
+  ])
   return crypto.subtle.sign('HMAC', k, new TextEncoder().encode(data))
 }
 
@@ -95,7 +97,8 @@ interface AskRequest {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const origin = request.headers.get('Origin')
-    if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(origin) })
+    if (request.method === 'OPTIONS')
+      return new Response(null, { status: 204, headers: cors(origin) })
 
     const url = new URL(request.url)
     if (request.method !== 'POST' || url.pathname !== '/ask') {
@@ -149,7 +152,10 @@ export default {
       if (err instanceof Anthropic.APIError) {
         return json({ error: `Ошибка API (${err.status})` }, 502, origin)
       }
-      console.error('tutor error:', err instanceof Error ? `${err.name}: ${err.message}` : String(err))
+      console.error(
+        'tutor error:',
+        err instanceof Error ? `${err.name}: ${err.message}` : String(err),
+      )
       return json({ error: 'Неизвестная ошибка' }, 500, origin)
     }
   },

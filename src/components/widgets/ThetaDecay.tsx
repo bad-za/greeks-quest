@@ -27,16 +27,21 @@ export function ThetaDecay() {
 
   return (
     <div className="widget">
-      <XYChart
-        series={series}
-        xFmt={x => `${Math.round(x)}д`}
-        yFmt={y => usd(y)}
-        height={280}
-      />
-      <p className="hint">По горизонтали — прошедшие дни (при неподвижной цене BTC = $100,000). Смотри, как ATM-опцион «тает» всё быстрее к концу.</p>
+      <XYChart series={series} xFmt={x => `${Math.round(x)}д`} yFmt={y => usd(y)} height={280} />
+      <p className="hint">
+        По горизонтали — прошедшие дни (при неподвижной цене BTC = $100,000). Смотри, как ATM-опцион
+        «тает» всё быстрее к концу.
+      </p>
       <div className="sliders">
         <Slider label="IV" value={iv} min={20} max={150} display={`${iv}%`} onChange={setIv} />
-        <Slider label="Срок жизни опциона" value={dte} min={7} max={120} display={`${dte}д`} onChange={setDte} />
+        <Slider
+          label="Срок жизни опциона"
+          value={dte}
+          min={7}
+          max={120}
+          display={`${dte}д`}
+          onChange={setDte}
+        />
       </div>
     </div>
   )

@@ -72,19 +72,66 @@ export function PayoffExplorer(props: {
       />
       <div className="sliders">
         {shown.has('strike') && (
-          <Slider label="Страйк" value={strike} min={70_000} max={140_000} step={1000} display={usd(strike)} hint={HINTS.strike} onChange={setStrike} />
+          <Slider
+            label="Страйк"
+            value={strike}
+            min={70_000}
+            max={140_000}
+            step={1000}
+            display={usd(strike)}
+            hint={HINTS.strike}
+            onChange={setStrike}
+          />
         )}
         {shown.has('spot') && (
-          <Slider label="Цена BTC сейчас" value={spot} min={60_000} max={150_000} step={500} display={usd(spot)} accent="#3b82f6" hint={HINTS.spot} onChange={setSpot} />
+          <Slider
+            label="Цена BTC сейчас"
+            value={spot}
+            min={60_000}
+            max={150_000}
+            step={500}
+            display={usd(spot)}
+            accent="#3b82f6"
+            hint={HINTS.spot}
+            onChange={setSpot}
+          />
         )}
         {shown.has('iv') && (
-          <Slider label="IV" value={iv} min={20} max={150} display={`${iv}%`} hint={HINTS.iv} onChange={setIv} />
+          <Slider
+            label="IV"
+            value={iv}
+            min={20}
+            max={150}
+            display={`${iv}%`}
+            hint={HINTS.iv}
+            onChange={setIv}
+          />
         )}
         {shown.has('dte') && (
-          <Slider label="Дней до экспирации" value={dte} min={1} max={90} display={`${dte}д`} hint={HINTS.dte} onChange={d => { setDte(d); setDaysPassed(dp => Math.min(dp, d)) }} />
+          <Slider
+            label="Дней до экспирации"
+            value={dte}
+            min={1}
+            max={90}
+            display={`${dte}д`}
+            hint={HINTS.dte}
+            onChange={d => {
+              setDte(d)
+              setDaysPassed(dp => Math.min(dp, d))
+            }}
+          />
         )}
         {props.showTime && (
-          <Slider label="Дней прошло" value={Math.min(daysPassed, dte)} min={0} max={dte} display={`${Math.min(daysPassed, dte)}д`} accent="#f59e0b" hint="Промотай время вперёд и посмотри, как тает временная стоимость опциона." onChange={setDaysPassed} />
+          <Slider
+            label="Дней прошло"
+            value={Math.min(daysPassed, dte)}
+            min={0}
+            max={dte}
+            display={`${Math.min(daysPassed, dte)}д`}
+            accent="#f59e0b"
+            hint="Промотай время вперёд и посмотри, как тает временная стоимость опциона."
+            onChange={setDaysPassed}
+          />
         )}
       </div>
       <div className="stats">
@@ -95,7 +142,11 @@ export function PayoffExplorer(props: {
           <>
             <Stat label="Дельта" value={num(p.side * g.delta, 2)} />
             <Stat label="Гамма" value={num(p.side * g.gamma * 1000, 3)} />
-            <Stat label="Тета ($/день)" value={usdSigned(p.side * g.thetaDay)} tone={p.side * g.thetaDay >= 0 ? 'pos' : 'neg'} />
+            <Stat
+              label="Тета ($/день)"
+              value={usdSigned(p.side * g.thetaDay)}
+              tone={p.side * g.thetaDay >= 0 ? 'pos' : 'neg'}
+            />
             <Stat label="Вега ($/1% IV)" value={usdSigned(p.side * g.vega1pct)} />
           </>
         )}

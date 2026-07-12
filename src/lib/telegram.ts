@@ -44,7 +44,8 @@ export const tg: TgWebApp | undefined =
   typeof window === 'undefined' ? undefined : window.Telegram?.WebApp
 
 /** Запущены ли мы реально внутри Telegram (скрипт SDK определяет объект даже в обычном браузере) */
-export const isTMA = !!tg && (tg.initData !== '' || (tg.platform !== '' && tg.platform !== 'unknown'))
+export const isTMA =
+  !!tg && (tg.initData !== '' || (tg.platform !== '' && tg.platform !== 'unknown'))
 
 /** ID пользователя Telegram, открывшего мини-апп (null вне Telegram) */
 export function tgUserId(): number | null {
@@ -117,7 +118,7 @@ export function cloudGet(key: string): Promise<string | null> {
   if (!tg || !isTMA || !tg.CloudStorage) return Promise.resolve(null)
   return new Promise(resolve => {
     try {
-      tg.CloudStorage!.getItem(key, (err, value) => resolve(err ? null : value ?? null))
+      tg.CloudStorage!.getItem(key, (err, value) => resolve(err ? null : (value ?? null)))
     } catch {
       resolve(null)
     }

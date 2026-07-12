@@ -21,7 +21,12 @@ export function positionPnl(
 }
 
 /** Находит точки безубыточности на экспирации (численно) */
-export function breakevens(legs: Leg[], spotLeg: SpotLeg | undefined, xMin: number, xMax: number): number[] {
+export function breakevens(
+  legs: Leg[],
+  spotLeg: SpotLeg | undefined,
+  xMin: number,
+  xMax: number,
+): number[] {
   const result: number[] = []
   const N = 400
   let prev = positionPnl(legs, spotLeg, xMin, 0.0001, 0)
@@ -67,7 +72,13 @@ export function PayoffChart(props: {
     { points: expiry, color: '#e2e8f0', width: 2.4, fillToZero: true, label: 'На экспирации' },
   ]
   if (today.length) {
-    series.push({ points: today, color: '#f59e0b', dash: '6 4', width: 2, label: `Сегодня (${props.daysLeft}д до эксп.)` })
+    series.push({
+      points: today,
+      color: '#f59e0b',
+      dash: '6 4',
+      width: 2,
+      label: `Сегодня (${props.daysLeft}д до эксп.)`,
+    })
   }
 
   const markers: VMarker[] = [{ x: props.spot, color: '#3b82f6', label: 'BTC' }]

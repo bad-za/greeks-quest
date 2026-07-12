@@ -30,7 +30,15 @@ export function InverseOption() {
   return (
     <div className="widget">
       <XYChart
-        series={[{ points: usdPts, color: '#e2e8f0', width: 2.4, fillToZero: true, label: 'P&L в USD (премия в BTC!)' }]}
+        series={[
+          {
+            points: usdPts,
+            color: '#e2e8f0',
+            width: 2.4,
+            fillToZero: true,
+            label: 'P&L в USD (премия в BTC!)',
+          },
+        ]}
         vMarkers={[
           { x: strike, color: '#64748b', label: 'страйк' },
           { x: expiry, color: '#3b82f6', label: 'цена на эксп.' },
@@ -41,20 +49,48 @@ export function InverseOption() {
         height={280}
       />
       <div className="sliders">
-        <Slider label="Страйк Call" value={strike} min={80_000} max={140_000} step={1000} display={usd(strike)} onChange={setStrike} />
-        <Slider label="Премия (в BTC)" value={premiumBtc} min={0.005} max={0.1} step={0.001} display={btc(premiumBtc, 3)} onChange={setPremiumBtc} />
-        <Slider label="Цена BTC на экспирации" value={expiry} min={60_000} max={160_000} step={1000} display={usd(expiry)} accent="#3b82f6" onChange={setExpiry} />
+        <Slider
+          label="Страйк Call"
+          value={strike}
+          min={80_000}
+          max={140_000}
+          step={1000}
+          display={usd(strike)}
+          onChange={setStrike}
+        />
+        <Slider
+          label="Премия (в BTC)"
+          value={premiumBtc}
+          min={0.005}
+          max={0.1}
+          step={0.001}
+          display={btc(premiumBtc, 3)}
+          onChange={setPremiumBtc}
+        />
+        <Slider
+          label="Цена BTC на экспирации"
+          value={expiry}
+          min={60_000}
+          max={160_000}
+          step={1000}
+          display={usd(expiry)}
+          accent="#3b82f6"
+          onChange={setExpiry}
+        />
       </div>
       <div className="stats">
         <Stat label="Премия в USD (при входе по $100k)" value={usd(premiumUsdAtEntry)} />
-        <Stat label="Выплата на экспирации" value={`${btc(payoffBtcAt)} = ${usd(payoffBtcAt * expiry)}`} />
+        <Stat
+          label="Выплата на экспирации"
+          value={`${btc(payoffBtcAt)} = ${usd(payoffBtcAt * expiry)}`}
+        />
         <Stat label="P&L в BTC" value={btc(pnlBtcAt)} tone={pnlBtcAt >= 0 ? 'pos' : 'neg'} />
         <Stat label="P&L в USD" value={usd(pnlUsdAt)} tone={pnlUsdAt >= 0 ? 'pos' : 'neg'} />
       </div>
       <p className="hint">
         Заметь: глубоко в деньгах выплата в BTC стремится к 1 − K/S, но никогда не достигнет 1 BTC —
-        чем выше цена, тем «дешевле» каждый доллар выплаты в биткоинах. Поэтому P&L-кривая инверсного
-        колла в USD остаётся линейной, а в BTC — выпуклая и насыщается.
+        чем выше цена, тем «дешевле» каждый доллар выплаты в биткоинах. Поэтому P&L-кривая
+        инверсного колла в USD остаётся линейной, а в BTC — выпуклая и насыщается.
       </p>
     </div>
   )

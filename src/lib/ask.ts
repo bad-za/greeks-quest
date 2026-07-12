@@ -14,7 +14,11 @@ export interface ChatMsg {
   content: string
 }
 
-export async function askTutor(question: string, context: string, history: ChatMsg[]): Promise<string> {
+export async function askTutor(
+  question: string,
+  context: string,
+  history: ChatMsg[],
+): Promise<string> {
   const res = await fetch(`${ASK_API}/ask`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

@@ -50,18 +50,22 @@ export function AskTutor(props: { context: string; onClose: () => void }) {
           {msgs.length === 0 && (
             <div className="chat-empty">
               <p className="mut">
-                Непонятен термин или само задание? Спрашивай как угодно — отвечу с учётом шага,
-                на котором ты сейчас.
+                Непонятен термин или само задание? Спрашивай как угодно — отвечу с учётом шага, на
+                котором ты сейчас.
               </p>
               <div className="chat-starters">
                 {STARTERS.map(s => (
-                  <button key={s} className="chip" onClick={() => send(s)}>{s}</button>
+                  <button key={s} className="chip" onClick={() => send(s)}>
+                    {s}
+                  </button>
                 ))}
               </div>
             </div>
           )}
           {msgs.map((m, i) => (
-            <div key={i} className={`chat-msg ${m.role}`}>{m.content}</div>
+            <div key={i} className={`chat-msg ${m.role}`}>
+              {m.content}
+            </div>
           ))}
           {busy && <div className="chat-msg assistant typing">думаю…</div>}
           {error && <div className="chat-error">{error}</div>}
@@ -76,7 +80,11 @@ export function AskTutor(props: { context: string; onClose: () => void }) {
               if (e.key === 'Enter') send(input)
             }}
           />
-          <button className="btn primary" disabled={busy || !input.trim()} onClick={() => send(input)}>
+          <button
+            className="btn primary"
+            disabled={busy || !input.trim()}
+            onClick={() => send(input)}
+          >
             ➤
           </button>
         </div>

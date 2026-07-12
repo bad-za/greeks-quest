@@ -79,7 +79,12 @@ export const GLOSSARY: GlossEntry[] = [
   {
     key: 'iv',
     title: 'IV — implied volatility',
-    aliases: ['iv', 'implied volatility', 'implied volatility (iv)', 'подразумеваемая волатильность'],
+    aliases: [
+      'iv',
+      'implied volatility',
+      'implied volatility (iv)',
+      'подразумеваемая волатильность',
+    ],
     body: '«Ожидаемая тряска»: насколько сильные колебания цены рынок закладывает в премию опциона. Выше IV — дороже все опционы. У BTC обычно 40–100% (у акций 15–25%). Подробный разбор — в акте II.',
   },
   {
@@ -240,11 +245,18 @@ export const GLOSSARY: GlossEntry[] = [
   },
 ]
 
-const norm = (s: string) => s.toLowerCase().replace(/[«»"']/g, '').replace(/\s+/g, ' ').trim()
+const norm = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[«»"']/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
 
 /** Найти статью словарика по тексту термина (или явному ключу) */
 export function findTerm(text: string): GlossEntry | undefined {
   const t = norm(text)
   if (!t) return undefined
-  return GLOSSARY.find(e => e.key === t || norm(e.title) === t || e.aliases.some(a => norm(a) === t))
+  return GLOSSARY.find(
+    e => e.key === t || norm(e.title) === t || e.aliases.some(a => norm(a) === t),
+  )
 }

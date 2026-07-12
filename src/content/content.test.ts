@@ -69,8 +69,14 @@ describe('структура курса', () => {
   it('миссии: ≥2 выборов, есть best и есть не-best', () => {
     for (const m of missions) {
       expect(m.choices.length, m.id).toBeGreaterThanOrEqual(2)
-      expect(m.choices.some(c => c.verdict === 'best'), `${m.id}: нет best`).toBe(true)
-      expect(m.choices.some(c => c.verdict !== 'best'), `${m.id}: все best`).toBe(true)
+      expect(
+        m.choices.some(c => c.verdict === 'best'),
+        `${m.id}: нет best`,
+      ).toBe(true)
+      expect(
+        m.choices.some(c => c.verdict !== 'best'),
+        `${m.id}: все best`,
+      ).toBe(true)
     }
   })
 
@@ -97,7 +103,9 @@ describe('математика миссий', () => {
       const path = missionPath(m)
       for (const c of m.choices) {
         const legs = priceLegs(m, c)
-        expect(Math.abs(pnlAt(m, c, legs, m.spot, 0)), `${m.id} / ${c.label}: день 0`).toBeLessThan(1)
+        expect(Math.abs(pnlAt(m, c, legs, m.spot, 0)), `${m.id} / ${c.label}: день 0`).toBeLessThan(
+          1,
+        )
         const final = pnlAt(m, c, legs, path[m.days], m.days)
         expect(Number.isFinite(final), `${m.id} / ${c.label}: финал`).toBe(true)
       }
