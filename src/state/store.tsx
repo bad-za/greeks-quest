@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { cloudGet, cloudSet } from '../lib/telegram'
+import { mergeSaves } from './merge'
 
 export interface SaveState {
   xp: number
@@ -49,15 +50,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<SaveState>(load)
   const hydrated = useRef(false)
 
-  // подтянуть сейв из Telegram CloudStorage (другое устройство / переустановка):
-  // берём облачный, если в нём больше прогресса, чем в локальном
+  // подтянуть сейв из Telegram CloudStorage (другое устройство / переустановка)
+  // и честно слить с локальным — union прогресса вместо «кто больше, тот и прав»
   useEffect(() => {
     cloudGet(KEY).then(raw => {
       hydrated.current = true
       if (!raw) return
       try {
         const cloud: SaveState = { ...INITIAL, ...JSON.parse(raw) }
-        setState(local => (cloud.xp > local.xp ? cloud : local))
+        setState(local => mergeSaves(local, cloud))
       } catch {
         /* битый сейв в облаке — игнорируем */
       }
