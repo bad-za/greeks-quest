@@ -1,44 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { bs, daysToYears, payoffAtExpiry } from '../lib/bs'
 import { gbmPath } from '../lib/rng'
+import { priceLegs, pnlAt } from '../lib/mission-math'
 import { usd, usdSigned, pct } from '../lib/format'
 import { XYChart } from './XYChart'
 import { Stat } from './ui'
 import { haptic } from '../lib/telegram'
-import type { Mission as MissionData, MissionChoice, Verdict } from '../content/types'
-
-interface PricedLeg {
-  type: 'call' | 'put'
-  side: 1 | -1
-  strike: number
-  qty: number
-  premium: number
-  dte: number
-}
-
-function priceLegs(m: MissionData, c: MissionChoice): PricedLeg[] {
-  return c.legs.map(l => ({
-    ...l,
-    dte: l.dte ?? m.dte,
-    premium: bs(l.type, m.spot, l.strike, m.iv / 100, daysToYears(l.dte ?? m.dte)).price,
-  }))
-}
-
-function pnlAt(m: MissionData, c: MissionChoice, legs: PricedLeg[], S: number, day: number): number {
-  const ivEnd = m.ivEnd ?? m.iv
-  const ivNow = (m.iv + ((ivEnd - m.iv) * day) / m.days) / 100
-  let pnl = 0
-  for (const leg of legs) {
-    const left = leg.dte - day
-    const value =
-      left <= 0
-        ? payoffAtExpiry(leg.type, S, leg.strike)
-        : bs(leg.type, S, leg.strike, ivNow, daysToYears(left)).price
-    pnl += leg.side * leg.qty * (value - leg.premium)
-  }
-  if (c.spotQty) pnl += c.spotQty * (S - m.spot)
-  return pnl
-}
+import type { Mission as MissionData, Verdict } from '../content/types'
 
 export function Mission(props: {
   mission: MissionData
