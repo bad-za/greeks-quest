@@ -984,3 +984,51 @@ button.term {
     padding: 13px 14px;
   }
 }
+
+/* ===== Монте-Карло («1000 параллельных вселенных») ===== */
+.mc {
+  margin-top: 4px;
+  display: grid;
+  gap: 10px;
+}
+.mc-note {
+  font-size: 13px;
+  margin: 0;
+}
+.mc-scroll {
+  overflow-x: auto;
+}
+.mc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.mc-table th,
+.mc-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
+}
+.mc-table th:first-child,
+.mc-table td:first-child {
+  text-align: left;
+  white-space: normal;
+  min-width: 130px;
+}
+.mc-table th {
+  color: var(--mut);
+  font-weight: 600;
+}
+.mc-chosen {
+  background: var(--card2);
+}
+.mc-chosen td:first-child::before {
+  content: '▸ ';
+  color: var(--accent);
+}
+.histogram {
+  width: 100%;
+  height: auto;
+  display: block;
+}

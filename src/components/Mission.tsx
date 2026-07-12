@@ -1,11 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { gbmPath } from '../lib/rng'
-import { priceLegs, pnlAt } from '../lib/mission-math'
+import { priceLegs, pnlAt, mcOutcomes, mcStats, type McStats } from '../lib/mission-math'
 import { usd, usdSigned, pct } from '../lib/format'
 import { XYChart } from './XYChart'
+import { Histogram } from './Histogram'
 import { Stat } from './ui'
 import { haptic } from '../lib/telegram'
 import type { Mission as MissionData, Verdict } from '../content/types'
+
+interface McRow {
+  label: string
+  stats: McStats
+  outcomes: number[]
+}
 
 export function Mission(props: {
   mission: MissionData
@@ -17,6 +24,7 @@ export function Mission(props: {
   const [choiceIdx, setChoiceIdx] = useState<number | null>(null)
   const [day, setDay] = useState(0)
   const [isReplay, setIsReplay] = useState(props.alreadyDone)
+  const [mc, setMc] = useState<McRow[] | null>(null)
   const timer = useRef<number | null>(null)
   // ref, а не state: эффект результата должен сработать ровно один раз на показ
   // результата и не перезапускаться от ре-рендеров родителя (двойная хаптика/XP)
@@ -181,12 +189,72 @@ export function Mission(props: {
           </div>
           <p className="mission-debrief">{choice.debrief}</p>
           <div className="mission-debrief general">{m.debrief}</div>
+
+          {'seed' in m.path &&
+            (mc === null ? (
+              <div className="row">
+                <button
+                  className="btn"
+                  onClick={() => {
+                    haptic('light')
+                    setMc(
+                      m.choices.map(c => {
+                        const outcomes = mcOutcomes(m, c, 1000)
+                        return { label: c.label, stats: mcStats(outcomes), outcomes }
+                      }),
+                    )
+                  }}
+                >
+                  🌌 А в 1000 параллельных вселенных?
+                </button>
+              </div>
+            ) : (
+              <div className="mc">
+                <p className="mut mc-note">
+                  Вердикт оценивает решение в момент входа, а не исход. Ниже — 1000 переигрываний
+                  того же сценария с другой рыночной случайностью: смотри на форму распределения, а
+                  не на один результат.
+                </p>
+                <div className="mc-scroll">
+                  <table className="mc-table">
+                    <thead>
+                      <tr>
+                        <th>Выбор</th>
+                        <th>P(профит)</th>
+                        <th>Медиана</th>
+                        <th>5%…95%</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {mc.map((r, i) => (
+                        <tr key={i} className={i === choiceIdx ? 'mc-chosen' : ''}>
+                          <td>{r.label}</td>
+                          <td>{Math.round(r.stats.probProfit * 100)}%</td>
+                          <td className={r.stats.median >= 0 ? 'pos' : 'neg'}>
+                            {usdSigned(r.stats.median)}
+                          </td>
+                          <td>
+                            {usdSigned(r.stats.p5)} … {usdSigned(r.stats.p95)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {choiceIdx !== null && <Histogram values={mc[choiceIdx].outcomes} />}
+                <p className="mut mc-note">
+                  Распределение P&L твоего выбора; пунктир — безубыток.
+                </p>
+              </div>
+            ))}
+
           <div className="row">
             <button
               className="btn"
               onClick={() => {
                 setIsReplay(true)
                 setChoiceIdx(null)
+                setMc(null)
                 setPhase('brief')
               }}
             >
