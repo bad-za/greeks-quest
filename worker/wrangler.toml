@@ -4,7 +4,8 @@ compatibility_date = "2026-06-01"
 
 # Секреты (задаются через `npx wrangler secret put <ИМЯ>`, в репозиторий не попадают):
 #   ANTHROPIC_API_KEY — ключ Anthropic API
-#   BOT_TOKEN         — токен Telegram-бота (для проверки подписи initData)
+#   BOT_TOKEN         — токен Telegram-бота (проверка подписи initData + отправка сообщений)
+#   WEBHOOK_SECRET    — случайная строка, та же, что в secret_token при setWebhook (см. README)
 
 [vars]
 # Telegram user ID, которым разрешён доступ (через запятую) — тот же список, что в src/App.tsx

@@ -53,14 +53,34 @@ GitHub Actions (`.github/workflows/deploy.yml`): каждый пуш в `main`
 но криптографической гарантии не даёт. Для публичного запуска с реальным
 контролем доступа нужна серверная валидация подписи `initData` токеном бота.
 
+## AI-тьютор (Cloudflare Worker)
+
+`worker/` — единственное место, где живёт ключ Anthropic API. Авторизация —
+криптографическая проверка подписи Telegram `initData` токеном бота.
+Ответы стримятся; модель задаётся переменной `MODEL` в `worker/wrangler.toml`.
+Дневной лимит вопросов (40/день на пользователя) включается биндингом KV —
+команды в комментарии `wrangler.toml`; без биндинга лимита нет.
+
+Деплой воркера ручной: `cd worker && npx wrangler deploy`.
+
 ## Telegram-бот
 
 Бот: [@GreeksQuest_bot](https://t.me/GreeksQuest_bot). Кнопка «🎮 Играть»
 (Menu Button), имя и описания настроены через Bot API. Токен лежит в
 `bot_token.env` — файл в `.gitignore`, в репозиторий не попадает.
 
-У бота нет бэкенда: на сообщения (включая `/start`) он не отвечает,
-Mini App работает без сервера.
+Бэкенд бота — тот же воркер: роут `/webhook` отвечает на `/start` (и любой
+другой текст) приветствием с кнопкой, открывающей Mini App. Включение после
+деплоя воркера (секрет — любая случайная строка, одна и та же в обеих командах):
+
+```bash
+TOKEN=$(grep -o '[0-9]\{8,\}:[A-Za-z0-9_-]\{30,\}' bot_token.env)
+cd worker && npx wrangler secret put WEBHOOK_SECRET && cd ..
+curl -s "https://api.telegram.org/bot$TOKEN/setWebhook" \
+  -d 'url=https://greeks-quest-tutor.bigbadnoob.workers.dev/webhook' \
+  -d 'secret_token=<та же строка>' \
+  -d 'allowed_updates=["message"]' -d 'drop_pending_updates=true'
+```
 
 Ассеты: `avatar-512.png` (аватар бота, загружается вручную через
 BotFather → `/setuserpic`), `banner-640x360.png` (фото для `/newapp`).

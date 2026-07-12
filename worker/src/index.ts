@@ -12,9 +12,21 @@ export interface Env {
   MODEL?: string
   /** KV для дневного лимита вопросов; без биндинга лимит выключен */
   TUTOR_KV?: KVNamespace
+  /** секрет webhook Telegram (setWebhook secret_token); без него роут /webhook выключен */
+  WEBHOOK_SECRET?: string
   /** "1" — пропускать проверку initData (только для wrangler dev, задаётся в .dev.vars) */
   DEV_MODE?: string
 }
+
+const APP_URL = 'https://bad-za.github.io/greeks-quest/'
+
+const START_TEXT =
+  'Привет! Это Greeks Quest — интерактивный курс по крипто-опционам: ' +
+  '12 уровней от «что такое колл» до улыбки волатильности, честный Блэк-Шоулз ' +
+  'и виртуальный портфель $10,000.\n\n' +
+  'Сейчас идёт приватная бета — если доступ открыт, игра запустится по кнопке 👇'
+
+const HINT_TEXT = 'Я умею одно, зато хорошо — открывать игру. Жми кнопку 👇'
 
 const ALLOWED_ORIGINS = new Set([
   'https://bad-za.github.io',
@@ -103,13 +115,60 @@ interface AskRequest {
   stream?: boolean
 }
 
+interface TgUpdate {
+  message?: {
+    text?: string
+    chat?: { id: number; type: string }
+  }
+}
+
+/** Сообщение с inline-кнопкой, открывающей Mini App (работает только в приватных чатах) */
+async function sendPlayButton(botToken: string, chatId: number, text: string): Promise<void> {
+  const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text,
+      reply_markup: {
+        inline_keyboard: [[{ text: '🎮 Играть', web_app: { url: APP_URL } }]],
+      },
+    }),
+  })
+  if (!res.ok) console.error('sendMessage failed:', res.status, await res.text())
+}
+
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const origin = request.headers.get('Origin')
     if (request.method === 'OPTIONS')
       return new Response(null, { status: 204, headers: cors(origin) })
 
     const url = new URL(request.url)
+
+    // --- webhook Telegram-бота: ответ на /start кнопкой запуска Mini App ---
+    if (request.method === 'POST' && url.pathname === '/webhook') {
+      if (
+        !env.WEBHOOK_SECRET ||
+        request.headers.get('X-Telegram-Bot-Api-Secret-Token') !== env.WEBHOOK_SECRET
+      ) {
+        return json({ error: 'unauthorized' }, 401, origin)
+      }
+      let update: TgUpdate
+      try {
+        update = await request.json()
+      } catch {
+        return json({ ok: true }, 200, origin)
+      }
+      const msg = update.message
+      if (msg?.chat?.type === 'private' && typeof msg.text === 'string') {
+        const text = msg.text.startsWith('/start') ? START_TEXT : HINT_TEXT
+        ctx.waitUntil(sendPlayButton(env.BOT_TOKEN, msg.chat.id, text))
+      }
+      // всё, что не 200, Telegram будет ретраить — отвечаем ok в любом случае
+      return json({ ok: true }, 200, origin)
+    }
+
     if (request.method !== 'POST' || url.pathname !== '/ask') {
       return json({ error: 'not found' }, 404, origin)
     }
