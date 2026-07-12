@@ -9,3 +9,13 @@ compatibility_date = "2026-06-01"
 [vars]
 # Telegram user ID, которым разрешён доступ (через запятую) — тот же список, что в src/App.tsx
 ALLOWED_USERS = "217306978"
+# Модель тьютора. Кандидат на удешевление: "claude-haiku-4-5-20251001" —
+# перед переключением сравни качество ответов на вопросах из STARTERS (wrangler dev).
+MODEL = "claude-sonnet-4-6"
+
+# Дневной лимит вопросов включается биндингом KV (без него код работает, лимита нет):
+#   npx wrangler kv namespace create TUTOR_KV
+# и вставь сюда выданный id:
+# [[kv_namespaces]]
+# binding = "TUTOR_KV"
+# id = "<id из команды выше>"

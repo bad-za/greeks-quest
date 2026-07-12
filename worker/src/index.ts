@@ -8,6 +8,10 @@ export interface Env {
   BOT_TOKEN: string
   /** Telegram user ID через запятую */
   ALLOWED_USERS: string
+  /** модель тьютора; без переменной — DEFAULT_MODEL */
+  MODEL?: string
+  /** KV для дневного лимита вопросов; без биндинга лимит выключен */
+  TUTOR_KV?: KVNamespace
   /** "1" — пропускать проверку initData (только для wrangler dev, задаётся в .dev.vars) */
   DEV_MODE?: string
 }
@@ -18,7 +22,10 @@ const ALLOWED_ORIGINS = new Set([
   'http://127.0.0.1:5173',
 ])
 
-const MODEL = 'claude-sonnet-4-6'
+const DEFAULT_MODEL = 'claude-sonnet-4-6'
+
+/** Вопросов в день на пользователя — защита бюджета API от случайного зацикливания */
+const DAILY_LIMIT = 40
 
 const SYSTEM = `Ты — тьютор обучающей игры Greeks Quest про опционы на криптовалюты (BTC/ETH, биржа Deribit).
 Ученик проходит курс: акт I — основы (коллы, путы, премия, страйк, экспирация, инверсные опционы),
@@ -116,12 +123,24 @@ export default {
     if (!question) return json({ error: 'empty question' }, 400, origin)
 
     // --- авторизация ---
+    let userId: number | null = null
     if (env.DEV_MODE !== '1') {
-      const userId = await validateInitData(body.initData ?? '', env.BOT_TOKEN)
+      userId = await validateInitData(body.initData ?? '', env.BOT_TOKEN)
       const allowed = env.ALLOWED_USERS.split(',').map(s => Number(s.trim()))
       if (userId === null || !allowed.includes(userId)) {
         return json({ error: 'Доступ только из Telegram (приватная бета).' }, 403, origin)
       }
+    }
+
+    // --- дневной лимит вопросов (мягкий: KV eventually consistent, для защиты бюджета хватает) ---
+    if (env.TUTOR_KV && userId !== null) {
+      const day = new Date().toISOString().slice(0, 10)
+      const key = `rl:${userId}:${day}`
+      const used = Number((await env.TUTOR_KV.get(key)) ?? 0)
+      if (used >= DAILY_LIMIT) {
+        return json({ error: 'Дневной лимит вопросов исчерпан — продолжим завтра 🙂' }, 429, origin)
+      }
+      await env.TUTOR_KV.put(key, String(used + 1), { expirationTtl: 172_800 })
     }
 
     // --- собираем диалог: короткая история + контекст текущего шага ---
@@ -135,7 +154,7 @@ export default {
     const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY })
     try {
       const response = await client.messages.create({
-        model: MODEL,
+        model: env.MODEL || DEFAULT_MODEL,
         max_tokens: 1024,
         system: SYSTEM,
         messages: [...history, { role: 'user', content: userTurn }],
