@@ -99,6 +99,8 @@ interface AskRequest {
   question?: string
   context?: string
   history?: ChatMsg[]
+  /** true — ответ потоком text/plain; иначе JSON {answer} (совместимость со старым клиентом) */
+  stream?: boolean
 }
 
 export default {
@@ -152,13 +154,35 @@ export default {
     const userTurn = context ? `[Ученик сейчас на шаге: ${context}]\n\n${question}` : question
 
     const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY })
+    const req = {
+      model: env.MODEL || DEFAULT_MODEL,
+      max_tokens: 1024,
+      system: SYSTEM,
+      messages: [...history, { role: 'user' as const, content: userTurn }],
+    }
     try {
-      const response = await client.messages.create({
-        model: env.MODEL || DEFAULT_MODEL,
-        max_tokens: 1024,
-        system: SYSTEM,
-        messages: [...history, { role: 'user', content: userTurn }],
-      })
+      if (body.stream) {
+        const stream = await client.messages.create({ ...req, stream: true })
+        const encoder = new TextEncoder()
+        const readable = new ReadableStream({
+          async start(controller) {
+            try {
+              for await (const event of stream) {
+                if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+                  controller.enqueue(encoder.encode(event.delta.text))
+                }
+              }
+            } catch {
+              // обрыв генерации на середине — отдаём клиенту то, что успели
+            }
+            controller.close()
+          },
+        })
+        return new Response(readable, {
+          headers: { 'Content-Type': 'text/plain; charset=utf-8', ...cors(origin) },
+        })
+      }
+      const response = await client.messages.create(req)
       const answer = response.content
         .filter((b): b is Anthropic.TextBlock => b.type === 'text')
         .map(b => b.text)

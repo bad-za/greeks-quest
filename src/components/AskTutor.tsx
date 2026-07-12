@@ -30,9 +30,22 @@ export function AskTutor(props: { context: string; onClose: () => void }) {
     const history = msgs
     setMsgs(m => [...m, { role: 'user', content: question }])
     setBusy(true)
+    let streamed = false
     try {
-      const answer = await askTutor(question, props.context, history)
-      setMsgs(m => [...m, { role: 'assistant', content: answer }])
+      const answer = await askTutor(question, props.context, history, full => {
+        // первый чанк добавляет пузырь ответа, следующие — обновляют его на месте
+        if (streamed) {
+          setMsgs(m => [...m.slice(0, -1), { role: 'assistant', content: full }])
+        } else {
+          streamed = true
+          setMsgs(m => [...m, { role: 'assistant', content: full }])
+        }
+      })
+      setMsgs(m =>
+        streamed
+          ? [...m.slice(0, -1), { role: 'assistant', content: answer }]
+          : [...m, { role: 'assistant', content: answer }],
+      )
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Что-то пошло не так')
       setMsgs(history) // вопрос не дошёл — вернём его в поле ввода
@@ -67,7 +80,9 @@ export function AskTutor(props: { context: string; onClose: () => void }) {
               {m.content}
             </div>
           ))}
-          {busy && <div className="chat-msg assistant typing">думаю…</div>}
+          {busy && msgs[msgs.length - 1]?.role === 'user' && (
+            <div className="chat-msg assistant typing">думаю…</div>
+          )}
           {error && <div className="chat-error">{error}</div>}
         </div>
         <div className="chat-input">
