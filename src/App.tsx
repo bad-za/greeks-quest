@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { StoreProvider } from './state/store'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { LevelMap } from './components/LevelMap'
 import { LevelPlayer } from './components/LevelPlayer'
 import { LEVELS } from './content/levels'
@@ -60,11 +61,13 @@ export default function App() {
   return (
     <StoreProvider>
       <div className="app">
-        {level ? (
-          <LevelPlayer key={level.id} level={level} onExit={() => setLevelId(null)} />
-        ) : (
-          <LevelMap onOpen={setLevelId} />
-        )}
+        <ErrorBoundary>
+          {level ? (
+            <LevelPlayer key={level.id} level={level} onExit={() => setLevelId(null)} />
+          ) : (
+            <LevelMap onOpen={setLevelId} />
+          )}
+        </ErrorBoundary>
       </div>
     </StoreProvider>
   )
