@@ -1032,3 +1032,25 @@ button.term {
   height: auto;
   display: block;
 }
+
+/* ===== Размер позиции в миссии ===== */
+.size-picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  font-size: 13px;
+}
+.size-warn {
+  font-size: 12px;
+  width: 100%;
+}
+.size-badge {
+  font-size: 12px;
+  color: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 1px 8px;
+  white-space: nowrap;
+}

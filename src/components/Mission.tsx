@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { gbmPath } from '../lib/rng'
-import { priceLegs, pnlAt, mcOutcomes, mcStats, type McStats } from '../lib/mission-math'
+import { priceLegs, pnlAt, scaleChoice, mcOutcomes, mcStats, type McStats } from '../lib/mission-math'
 import { usd, usdSigned, pct } from '../lib/format'
 import { XYChart } from './XYChart'
 import { Histogram } from './Histogram'
-import { Stat } from './ui'
+import { Seg, Stat } from './ui'
 import { haptic } from '../lib/telegram'
 import type { Mission as MissionData, Verdict } from '../content/types'
 
@@ -25,7 +25,9 @@ export function Mission(props: {
   const [day, setDay] = useState(0)
   const [isReplay, setIsReplay] = useState(props.alreadyDone)
   const [mc, setMc] = useState<McRow[] | null>(null)
+  const [sizeStr, setSizeStr] = useState<'0.5' | '1' | '2'>('1')
   const timer = useRef<number | null>(null)
+  const sizeMult = Number(sizeStr)
   // ref, а не state: эффект результата должен сработать ровно один раз на показ
   // результата и не перезапускаться от ре-рендеров родителя (двойная хаптика/XP)
   const reported = useRef(props.alreadyDone)
@@ -45,7 +47,12 @@ export function Mission(props: {
     })
   }, [m])
 
-  const choice = choiceIdx !== null ? m.choices[choiceIdx] : null
+  // useMemo обязателен: scaleChoice создаёт новый объект, а identity choice
+  // держит deps эффекта результата
+  const choice = useMemo(() => {
+    const raw = choiceIdx !== null ? m.choices[choiceIdx] : null
+    return raw ? scaleChoice(raw, sizeMult) : null
+  }, [choiceIdx, m, sizeMult])
   const legs = useMemo(() => (choice ? priceLegs(m, choice) : []), [choice, m])
 
   useEffect(() => {
@@ -109,13 +116,31 @@ export function Mission(props: {
             <Stat label="Экспирация опционов" value={`через ${m.dte}д`} />
             <Stat label="Горизонт сценария" value={`${m.days}д`} />
           </div>
+          <div className="size-picker">
+            <span className="mut">Размер позиции:</span>
+            <Seg
+              options={[
+                { value: '0.5', label: '½×' },
+                { value: '1', label: '1×' },
+                { value: '2', label: '2×' },
+              ]}
+              value={sizeStr}
+              onChange={setSizeStr}
+            />
+            {sizeStr === '2' && (
+              <span className="size-warn mut">
+                двойной размер = двойная премия и двойной риск; портфель помнит всё
+              </span>
+            )}
+          </div>
           <p className="mission-choose">Твоё решение:</p>
           <div className="mission-choices">
             {m.choices.map((c, i) => {
-              const pl = priceLegs(m, c)
+              const sc = scaleChoice(c, sizeMult)
+              const pl = priceLegs(m, sc)
               const cost =
                 pl.reduce((a, l) => a + l.side * l.qty * l.premium, 0) +
-                (c.spotQty ? c.spotQty * m.spot : 0)
+                (sc.spotQty ? sc.spotQty * m.spot : 0)
               return (
                 <button
                   key={i}
@@ -185,6 +210,9 @@ export function Mission(props: {
         <div className="mission-result">
           <div className={`verdict ${verdictUi[choice.verdict].cls}`}>
             {verdictUi[choice.verdict].label}
+            {sizeMult !== 1 && (
+              <span className="size-badge">размер ×{sizeStr === '0.5' ? '½' : sizeStr}</span>
+            )}
             <b className={curPnl >= 0 ? 'pos' : 'neg'}>{usdSigned(curPnl)}</b>
           </div>
           <p className="mission-debrief">{choice.debrief}</p>
@@ -199,7 +227,7 @@ export function Mission(props: {
                     haptic('light')
                     setMc(
                       m.choices.map(c => {
-                        const outcomes = mcOutcomes(m, c, 1000)
+                        const outcomes = mcOutcomes(m, scaleChoice(c, sizeMult), 1000)
                         return { label: c.label, stats: mcStats(outcomes), outcomes }
                       }),
                     )
