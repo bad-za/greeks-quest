@@ -39,7 +39,9 @@ declare global {
   }
 }
 
-export const tg: TgWebApp | undefined = window.Telegram?.WebApp
+// typeof-проверка: модуль импортируется и в Node (vitest), где window нет
+export const tg: TgWebApp | undefined =
+  typeof window === 'undefined' ? undefined : window.Telegram?.WebApp
 
 /** Запущены ли мы реально внутри Telegram (скрипт SDK определяет объект даже в обычном браузере) */
 export const isTMA = !!tg && (tg.initData !== '' || (tg.platform !== '' && tg.platform !== 'unknown'))
