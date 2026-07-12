@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { LEVELS, ACTS } from '../content/levels'
 import { ACHIEVEMENTS } from '../content/achievements'
 import { useStore, rankForXp } from '../state/store'
@@ -9,6 +9,21 @@ export function LevelMap(props: { onOpen: (levelId: string) => void }) {
   const { state, resetAll } = useStore()
   const [showAch, setShowAch] = useState(false)
   const rank = rankForXp(state.xp)
+
+  // новичка заводим сразу в первый уровень, а не на карту из 12 карточек;
+  // флаг в sessionStorage — чтобы «Назад» не зашвыривал обратно (сейв ещё пуст)
+  useEffect(() => {
+    const fresh =
+      state.xp === 0 &&
+      state.completedLevels.length === 0 &&
+      Object.keys(state.progress).length === 0
+    if (fresh && !sessionStorage.getItem('gq-auto-opened')) {
+      sessionStorage.setItem('gq-auto-opened', '1')
+      props.onOpen('intro')
+    }
+    // только при монтировании: реагировать на смену state/props не нужно
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const unlockedCount = state.achievements.length
 
