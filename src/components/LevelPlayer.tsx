@@ -145,6 +145,7 @@ export function LevelPlayer(props: { level: Level; onExit: () => void }) {
       {glossary && <GlossaryModal onClose={() => setGlossary(false)} />}
       {tutor && (
         <AskTutor
+          levelId={level.id}
           context={`уровень «${level.title}», шаг ${idx + 1} «${stepTitle(step)}»`}
           onClose={() => setTutor(false)}
         />

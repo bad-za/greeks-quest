@@ -10,12 +10,28 @@ const STARTERS = [
 ]
 
 /** Чат с AI-тьютором: можно задать уточняющий вопрос про текущий шаг курса */
-export function AskTutor(props: { context: string; onClose: () => void }) {
-  const [msgs, setMsgs] = useState<ChatMsg[]>([])
+export function AskTutor(props: { levelId: string; context: string; onClose: () => void }) {
+  // переписка живёт в sessionStorage по уровню: закрыл модалку — история не потерялась
+  const storeKey = `tutor-chat-${props.levelId}`
+  const [msgs, setMsgs] = useState<ChatMsg[]>(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem(storeKey) ?? '[]')
+    } catch {
+      return []
+    }
+  })
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(storeKey, JSON.stringify(msgs.slice(-20)))
+    } catch {
+      /* переполненное хранилище — не критично */
+    }
+  }, [msgs, storeKey])
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight })
